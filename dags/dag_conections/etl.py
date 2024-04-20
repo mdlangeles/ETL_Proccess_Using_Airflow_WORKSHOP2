@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String, Boolean, Date, CHAR
 sys.path.append(os.path.abspath("/opt/airflow/dags/dag_conections/"))
-from transformations.transformations import delete_column, delete_duplicated_id, duration_transformation, cat_genre, drop_transformation, fill_na_merge, fill_na_merge1, category_na#, delete_artist
+from transformations.transformations import delete_column, delete_duplicated_id, duration_transformation, cat_genre, drop_transformation, fill_na_merge, fill_na_merge1, category_na, nominee, delete_artist, title
 from transformations.transformations import drop_columns, parenthesis_transformation, fill_nulls_first, fill_nulls_arts, fill_nulls_worker, drop_nulls, lower_case, rename_column
 from dag_conections.insert import engine_creation, create_table, insert_data, finish_engine
 
@@ -130,8 +130,10 @@ def merge(**kwargs):
     #df_merge = columns_merge(df_merge)
     df_merge = fill_na_merge(df_merge)
     df_merge= fill_na_merge1(df_merge)
-    #df_merge=delete_artist(df_merge)
+    df_merge=delete_artist(df_merge)
     df_merge=category_na(df_merge)
+    df_merge=nominee(df_merge)
+    df_merge=title(df_merge)
     logging.info( f"THe merge is Done")
     logging.info(f"The dimension is: {df_merge.shape}")
     logging.info(f"the columns are: {df_merge.columns}")
@@ -141,51 +143,24 @@ def merge(**kwargs):
     return df_merge.to_json(orient='records')
 
 
+def load(**kwargs):
+    logging.info("Load proccess is started")
+    ti = kwargs["ti"]
+    str_data = ti.xcom_pull(task_ids="merge_task")
+    json_data = json.loads(str_data)
+    df_load = pd.json_normalize(data=json_data)
+    engine = engine_creation()
 
-#     return json_data
+    df_load.to_sql('merge', engine, if_exists='replace', index=False)
 
-# def load(json_data):
-#     print("data coming from extract:", json_data)
-#     print("data type is: ", type(json_data))
+    #Cerramos la conexion a la db
+    finish_engine(engine)
+    df_load.to_csv("merge.csv", index=False)
+    logging.info( f"Merge is ready")
 
-#     json_data = json.loads(json_data)
-#     songs = pd.DataFrame(json_data)
+    return df_load.to_json(orient='records')
 
-#     with open('../credentials_G.json', 'r') as json_file:
-#         data = json.load(json_file)
-#         user = data["user"]
-#         password = data["password"]
-#         port = data["port"]
-#         server = data["server"]
-#         db = data["db"]
 
-#     db_connection = f"postgresql+psycopg2://{user}:{password}@{server}:{port}/{db}"
-#     engine = create_engine(db_connection)
-
-#     Base = declarative_base()
-
-#     class Song(Base):
-#         __tablename__ = 'songs'
-#         id = Column(Integer, primary_key=True, autoincrement=True)
-#         artists = Column(String)
-#         track_name = Column(String)
-#         duration_min = Column(Integer)
-#         explicit = Column(Boolean)
-#         danceability = Column(Integer)
-#         energy = Column(Integer)
-#         speechiness = Column(Integer)
-#         instrumentalness = Column(Integer)
-#         valence = Column(Integer)
-#         year = Column(Integer)
-#         title = Column(String)
-#         category = Column(String)
-#         was_nominated = Column(Boolean)
-
-#     Base.metadata.create_all(engine)
-
-#     songs.to_sql('songs', engine, if_exists='replace', index=False)
-
-#     return json_data
 
 # def store(json_data):
 #     print("data coming from extract:", json_data)

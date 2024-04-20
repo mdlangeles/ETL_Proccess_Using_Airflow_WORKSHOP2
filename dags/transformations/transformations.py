@@ -110,7 +110,7 @@ def rename_column(grammys):
     return grammys
 
 # def columns_merge(df_merge):
-#     columns = ['year','artist','track_name','popularity','category','duration_min',
+#     columns = ['year','artists','track_name','popularity','category','duration_min',
 #                'explicit','danceability','energy','valence','genre_cat','nominated','title']
 #     df_merge = df_merge[columns]
 #     return df_merge
@@ -123,10 +123,18 @@ def fill_na_merge1(df_merge):
     df_merge.fillna({'year':0}, inplace=True)
     return df_merge
 
-# def delete_artist(df_merge):
-#     df_merge.drop(columns=['artist'], inplace=True)
-#     return df_merge
+def delete_artist(df_merge):
+    df_merge.drop(columns=['artist'], inplace=True)
+    return df_merge
 
 def category_na(df_merge):
     df_merge.fillna({'category':'No Category'}, inplace= True)
+    return df_merge
+
+def nominee(df_merge):
+    df_merge.drop(columns=['nominee'], inplace= True)
+    return df_merge
+
+def title(df_merge):
+    df_merge.fillna({'title':'No ANNUAL GRAMMY Awards'}, inplace=True)
     return df_merge

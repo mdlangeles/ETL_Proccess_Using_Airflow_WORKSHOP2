@@ -5,7 +5,7 @@ from datetime import datetime
 import sys 
 import os
 #sys.path.append(os.path.abspath("/opt/airflow/dags/dag_connections/"))
-from dag_conections.etl import read_csv, transform, extract_sql, transform_sql, merge # load, store
+from dag_conections.etl import read_csv, transform, extract_sql, transform_sql, merge, load #store
 
 
 
@@ -59,11 +59,11 @@ with DAG(
         provide_context = True,
         )
     
-    # load_task = PythonOperator(
-    #     task_id='load_task',
-    #     python_callable=load,
-    #     provide_context = True,
-    #     )
+    load_task = PythonOperator(
+        task_id='load_task',
+        python_callable=load,
+        provide_context = True,
+        )
     
     # store_task = PythonOperator(
     #     task_id='store_task',
@@ -71,5 +71,5 @@ with DAG(
     #     provide_context = True,
     #     )
 
-    read_csv_task >> transform_csv_task >> merge_task #>> load_task >> store_task
+    read_csv_task >> transform_csv_task >> merge_task >> load_task #>> store_task
     read_db_task >> transform_db_task >> merge_task

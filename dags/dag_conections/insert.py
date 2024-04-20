@@ -57,3 +57,27 @@ def insert_data():
 
 def finish_engine(engine):
     engine.dispose()
+
+
+
+def create_table1(engine):
+    class merge(Base):
+        __tablename__ = 'merge'
+        id = Column(Integer, primary_key=True, autoincrement=True)
+        year = Column(Integer, nullable=False)
+        artists = Column(String(100), nullable=False)
+        track_name = Column(String, nullable=False)
+        popularity=Column(String, nullable=False)
+        category=Column(String,nullable=False)
+        duration_min=Column(Integer, nullable=False)
+        explicit=Column(Integer, nullable=False)
+        danceability=Column(Integer, nullable=False)
+        energy=Column(Integer, nullable=False)
+        valence= Column(Integer, nullable=False)
+        genre_cat= Column(String, nullable=False)
+        nominated= Column(Boolean, nullable= False)
+        title= Column(String, nullable=False)
+        
+    Base.metadata.create_all(engine)
+    merge.__table__
+
