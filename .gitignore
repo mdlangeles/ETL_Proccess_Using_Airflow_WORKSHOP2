@@ -1,7 +1,5 @@
 credentials_G.json
 logs/
-__pycache__/
-__pycache__/
 credentials_module.json
 settings.yaml
 connectionAirflow.json
@@ -10,5 +8,9 @@ airflow.cfg
 airflow.db
 standalone_admin_password.txt
 webserver_config.py
+client_secrets.json
+QuickStart.py
+
+
 
 
