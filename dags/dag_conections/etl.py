@@ -172,6 +172,6 @@ def store(**kwargs):
     str_data = ti.xcom_pull(task_ids="load_task")
     json_data = json.loads(str_data)
     df_store = pd.json_normalize(data=json_data)
-    
+
     upload_file("merge.csv","11xQ7d8wvT5wcHQToTfNAmsGUvceG_6cX")    
     logging.info( f"THe Data is Uploaded In GoogleDrive")
