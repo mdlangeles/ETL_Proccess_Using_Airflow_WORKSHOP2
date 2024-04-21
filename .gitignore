@@ -8,8 +8,8 @@ airflow.cfg
 airflow.db
 standalone_admin_password.txt
 webserver_config.py
-client_secrets.json
-QuickStart.py
+client_secrets.jsons
+credentials_json/
 
 
 
