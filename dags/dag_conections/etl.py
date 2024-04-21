@@ -12,6 +12,10 @@ sys.path.append(os.path.abspath("/opt/airflow/dags/dag_conections/"))
 from transformations.transformations import delete_column, delete_duplicated_id, duration_transformation, cat_genre, drop_transformation, fill_na_merge, fill_na_merge1, category_na, nominee, delete_artist, title
 from transformations.transformations import drop_columns, parenthesis_transformation, fill_nulls_first, fill_nulls_arts, fill_nulls_worker, drop_nulls, lower_case, rename_column
 from dag_conections.insert import engine_creation, create_table, insert_data, finish_engine
+from driveconf import upload_file
+
+
+
 
 #from pydrive.drive_connect import upload_csv
 
@@ -153,7 +157,7 @@ def load(**kwargs):
 
     df_load.to_sql('merge', engine, if_exists='replace', index=False)
 
-    #Cerramos la conexion a la db
+    #Close the connection to the DB
     finish_engine(engine)
     df_load.to_csv("merge.csv", index=False)
     logging.info( f"Merge is ready")
@@ -162,11 +166,12 @@ def load(**kwargs):
 
 
 
-# def store(json_data):
-#     print("data coming from extract:", json_data)
-#     print("data type is: ", type(json_data))
-
-#     logging.info(f"data is {json_data}")
-
-#     #upload_csv("songs.csv", "12XXFs63DStw-1uI_yjCUtKRZ4FZ0GLqr")
-#     logging.info(f"Airflow workflow completed for workshop2!")
+def store(**kwargs):
+    logging.info("The Store Process has Started")
+    ti = kwargs["ti"]
+    str_data = ti.xcom_pull(task_ids="load_task")
+    json_data = json.loads(str_data)
+    df_store = pd.json_normalize(data=json_data)
+    
+    upload_file("merge.csv","11xQ7d8wvT5wcHQToTfNAmsGUvceG_6cX")    
+    logging.info( f"THe Data is Uploaded In GoogleDrive")
