@@ -84,7 +84,7 @@ python -m venv venv
 source venv/bin/activate 
 ```
 
-6. Install libreries
+6. Install libraries
 ```bash
   pip install -r requirements.txt
 ```
