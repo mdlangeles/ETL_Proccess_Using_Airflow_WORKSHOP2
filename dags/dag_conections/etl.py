@@ -16,13 +16,8 @@ from driveconf import upload_file
 
 
 
-
-#from pydrive.drive_connect import upload_csv
-
-
 def read_csv():
     
-    # Reading csv file
     df_spotify = pd.read_csv("./Data/spotify_dataset.csv")
     logging.info("CSV read successfully")
     logging.info(f"Columns are: %s" , df_spotify.head())
@@ -34,8 +29,8 @@ def transform(**kwargs):
     logging.info("The CSV has started transformation process")
 
     ti = kwargs['ti']
-    str_data = ti.xcom_pull(task_ids='read_csv_task')
-    json_data = json.loads(str_data)
+    data_strg = ti.xcom_pull(task_ids='read_csv_task')
+    json_data = json.loads(data_strg)
     df_spotify = pd.json_normalize(data=json_data)
 
     logging.info("df is type: %s", type(df_spotify))
@@ -64,23 +59,23 @@ def transform(**kwargs):
     
 def extract_sql():
     try:
-        # Crear el motor de la base de datos
+    
         logging.info("Creating the db motor")
         engine = engine_creation()
 
-        # Crear la tabla en la base de datos
+    
         logging.info("Creating table.")
         create_table(engine)
 
-        # Insertar datos desde el archivo CSV a la base de datos
+    
         logging.info("Inserting data into db")
         insert_data()
 
         session = engine_creation()
-        grammys_df = pd.read_sql('SELECT * FROM grammys', con=engine)  # Asume que 'your_table_name' es el nombre de tu tabla
+        grammys_df = pd.read_sql('SELECT * FROM grammys', con=engine)  
     
 
-        # Cerrar la conexión con la base de datos
+        # Close the conection to the DB
         logging.info("Connection closed")
         finish_engine(engine)
 
@@ -95,8 +90,8 @@ def extract_sql():
 
 def transform_sql(**kwargs):
     ti = kwargs["ti"]
-    str_data = ti.xcom_pull(task_ids="read_db_task")
-    json_data = json.loads(str_data)
+    data_strg = ti.xcom_pull(task_ids="read_db_task")
+    json_data = json.loads(data_strg)
     grammys_df = pd.json_normalize(data=json_data)
     logging.info(f"data from db has started transformation proccess")
 
@@ -112,7 +107,7 @@ def transform_sql(**kwargs):
     grammys_df = lower_case(grammys_df)
     grammys_df = rename_column(grammys_df)
 
-    #function transformed
+
     return grammys_df.to_json(orient='records')
 
 
@@ -121,17 +116,16 @@ def merge(**kwargs):
     ti = kwargs["ti"]
 
     logging.info( f"Spotify has started the merge proccess")
-    str_data = ti.xcom_pull(task_ids="transform_csv_task")
-    json_data = json.loads(str_data)
+    data_strg = ti.xcom_pull(task_ids="transform_csv_task")
+    json_data = json.loads(data_strg)
     df_spotify = pd.json_normalize(data=json_data)
 
     logging.info( f"Grammys has started the merge proccess")
-    str_data = ti.xcom_pull(task_ids="transform_db_task")
-    json_data = json.loads(str_data)
+    data_strg = ti.xcom_pull(task_ids="transform_db_task")
+    json_data = json.loads(data_strg)
     grammys_df = pd.json_normalize(data=json_data)
 
     df_merge = df_spotify.merge(grammys_df, how='left', left_on='track_name', right_on='nominee')
-    #df_merge = columns_merge(df_merge)
     df_merge = fill_na_merge(df_merge)
     df_merge= fill_na_merge1(df_merge)
     df_merge=delete_artist(df_merge)
@@ -150,8 +144,8 @@ def merge(**kwargs):
 def load(**kwargs):
     logging.info("Load proccess is started")
     ti = kwargs["ti"]
-    str_data = ti.xcom_pull(task_ids="merge_task")
-    json_data = json.loads(str_data)
+    data_strg = ti.xcom_pull(task_ids="merge_task")
+    json_data = json.loads(data_strg)
     df_load = pd.json_normalize(data=json_data)
     engine = engine_creation()
 
@@ -169,8 +163,8 @@ def load(**kwargs):
 def store(**kwargs):
     logging.info("The Store Process has Started")
     ti = kwargs["ti"]
-    str_data = ti.xcom_pull(task_ids="load_task")
-    json_data = json.loads(str_data)
+    data_strg = ti.xcom_pull(task_ids="load_task")
+    json_data = json.loads(data_strg)
     df_store = pd.json_normalize(data=json_data)
 
     upload_file("merge.csv","11xQ7d8wvT5wcHQToTfNAmsGUvceG_6cX")    

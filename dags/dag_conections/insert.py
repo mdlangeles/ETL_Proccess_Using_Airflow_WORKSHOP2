@@ -8,7 +8,7 @@ from sqlalchemy import Column, Integer, String, Boolean, Date, CHAR, DateTime
 from sqlalchemy.orm import declarative_base
 
 
-csv_grammys = './Data/the_grammy_awards.csv'
+grammys_csv = './Data/the_grammy_awards.csv'
 
 with open('./connectionAirflow.json', 'r') as json_file:
     data = json.load(json_file)
@@ -52,7 +52,7 @@ def create_table(engine):
     Grammys.__table__
 
 def insert_data():
-    df_grammys = pd.read_csv(csv_grammys)
+    df_grammys = pd.read_csv(grammys_csv)
     df_grammys.to_sql('grammys', engine, if_exists='replace', index=False)
 
 def finish_engine(engine):
